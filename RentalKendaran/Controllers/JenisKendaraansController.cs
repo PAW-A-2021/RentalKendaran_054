@@ -1,0 +1,159 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using RentalKendaran.Models;
+
+namespace RentalKendaran.Controllers
+{
+    public class JenisKendaraansController : Controller
+    {
+        private readonly RentKendaraanContext _context;
+
+        public JenisKendaraansController(RentKendaraanContext context)
+        {
+            _context = context;
+        }
+
+        // GET: JenisKendaraans
+        public async Task<IActionResult> Index()
+        {
+            var rentKendaraanContext = _context.JenisKendaraans.Include(j => j.IdJenisKendaraanNavigation);
+            return View(await rentKendaraanContext.ToListAsync());
+        }
+
+        // GET: JenisKendaraans/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var jenisKendaraan = await _context.JenisKendaraans
+                .Include(j => j.IdJenisKendaraanNavigation)
+                .FirstOrDefaultAsync(m => m.IdJenisKendaraan == id);
+            if (jenisKendaraan == null)
+            {
+                return NotFound();
+            }
+
+            return View(jenisKendaraan);
+        }
+
+        // GET: JenisKendaraans/Create
+        public IActionResult Create()
+        {
+            ViewData["IdJenisKendaraan"] = new SelectList(_context.Kendaraans, "IdKendaraan", "IdKendaraan");
+            return View();
+        }
+
+        // POST: JenisKendaraans/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("IdJenisKendaraan,NamaJenisKendaraan")] JenisKendaraan jenisKendaraan)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(jenisKendaraan);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["IdJenisKendaraan"] = new SelectList(_context.Kendaraans, "IdKendaraan", "IdKendaraan", jenisKendaraan.IdJenisKendaraan);
+            return View(jenisKendaraan);
+        }
+
+        // GET: JenisKendaraans/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var jenisKendaraan = await _context.JenisKendaraans.FindAsync(id);
+            if (jenisKendaraan == null)
+            {
+                return NotFound();
+            }
+            ViewData["IdJenisKendaraan"] = new SelectList(_context.Kendaraans, "IdKendaraan", "IdKendaraan", jenisKendaraan.IdJenisKendaraan);
+            return View(jenisKendaraan);
+        }
+
+        // POST: JenisKendaraans/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("IdJenisKendaraan,NamaJenisKendaraan")] JenisKendaraan jenisKendaraan)
+        {
+            if (id != jenisKendaraan.IdJenisKendaraan)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(jenisKendaraan);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!JenisKendaraanExists(jenisKendaraan.IdJenisKendaraan))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["IdJenisKendaraan"] = new SelectList(_context.Kendaraans, "IdKendaraan", "IdKendaraan", jenisKendaraan.IdJenisKendaraan);
+            return View(jenisKendaraan);
+        }
+
+        // GET: JenisKendaraans/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var jenisKendaraan = await _context.JenisKendaraans
+                .Include(j => j.IdJenisKendaraanNavigation)
+                .FirstOrDefaultAsync(m => m.IdJenisKendaraan == id);
+            if (jenisKendaraan == null)
+            {
+                return NotFound();
+            }
+
+            return View(jenisKendaraan);
+        }
+
+        // POST: JenisKendaraans/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var jenisKendaraan = await _context.JenisKendaraans.FindAsync(id);
+            _context.JenisKendaraans.Remove(jenisKendaraan);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        private bool JenisKendaraanExists(int id)
+        {
+            return _context.JenisKendaraans.Any(e => e.IdJenisKendaraan == id);
+        }
+    }
+}
